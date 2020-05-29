@@ -1,0 +1,74 @@
+<head>
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-auth.js"></script>
+    <script>
+      var firebaseConfig = {{ firebase_config|tojson }};
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+
+    </script>
+    <script>
+
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+              user.getIdToken().then(function(idToken) {
+                  document.getElementById('token_tag').value = idToken;
+              });
+            // User is signed in.
+          } else {
+            // No user is signed in.
+          }
+        });
+
+
+    </script>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/kudobox.css') }}">
+</head>
+<!--How to remove duplication?-->
+<div>
+ kudo-box |
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('kudos') }}">Kudos</a>
+    <a href="{{ url_for('register') }}">Authenticate</a>
+</div>
+<hr>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+<hr>
+{% endif %}
+{% endwith %}
+{% block content %}
+<h1>Submit a kudo</h1>
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {{ form.token_tag() }}
+    <p>
+        {{ form.sender.label }}<br>
+        {{ form.sender(size=32) }}<br>
+        {% for error in form.sender.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.receiver.label }}<br>
+        {{ form.receiver(size=32) }}<br>
+        {% for error in form.receiver.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.text.label }}<br>
+        {{ form.text(size=32, id='larger') }}<br>
+        {% for error in form.text.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Error</h2>
+
+
+<div><p>There was an error when submitting your kudo.</p></div>
+
+<ul>
+    <li>
+        Did you register and confirm your email?
+    </li>
+    <li>
+        Does your email end with @{{ company_email_suffix }}
+    </li>
+</ul>
+
+<div><p>Click on kudos to get to the kudos form.</p></div>
+
+
+{% endblock %}

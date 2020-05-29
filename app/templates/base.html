@@ -1,0 +1,22 @@
+<html>
+<body>
+<div>
+    kudo-box |
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('kudos') }}">Kudos</a>
+    <a href="{{ url_for('register') }}">Authenticate</a>
+</div>
+<hr>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+<hr>
+{% endif %}
+{% endwith %}
+{% block content %}{% endblock %}
+</body>
+</html>
