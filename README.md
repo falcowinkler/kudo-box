@@ -1,6 +1,6 @@
 # Kudobox
 
-A flask app for kudos
+A virtual kudo box
 
 - Team members can upload kudo card texts on a simple web UI
 - Moderators can publish the cards in a slack channel, e.g. during agile rituals
