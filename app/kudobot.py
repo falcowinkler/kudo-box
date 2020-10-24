@@ -14,6 +14,7 @@ from app import app
 from app import firebase_config
 from app import serviceaccount_config
 from app import slack_config
+from app.render import create_card
 
 cred = credentials.Certificate(serviceaccount_config)
 firebase_admin.initialize_app(cred, {
@@ -21,30 +22,6 @@ firebase_admin.initialize_app(cred, {
 })
 
 
-def create_card(sender, receiver, text):
-    text = f"""\
-From: {sender}
-To: {receiver}
----
-{text}"""
-
-    font_path = 'fonts/MostlyMono.ttf'
-    num_images = 9
-    image = random.randint(1, num_images)
-    x = Image.open(f'images/{image}.png').convert('RGB')
-    # thank you card TODO: text is over image if too long
-    lines = textwrap.wrap(text, width=30 if image not in [4,
-                                                          5] else 45)
-    font = ImageFont.truetype(font_path, 28, encoding='unic')
-    y_text = 130
-    draw = ImageDraw.Draw(x)
-    for line in lines:
-        width, height = font.getsize(line)
-        draw.text((30, y_text), line, font=font, fill=(0, 0, 0))
-        y_text += height + 10
-    filename = f"generated/{uuid.uuid4()}.png"
-    x.save(filename)
-    return filename
 
 
 # Our app's Slack Event Adapter for receiving actions via the Events API

@@ -30,7 +30,7 @@ def kudos():
         except requests.exceptions.HTTPError:  # probably unauthenticated
             flash("There was an error submitting your kudo.")
             flash(f"Did you register and confirm your email?")
-            flash(f"Does your email end with @{app_config['company']}?")
+            flash(f"Does your email end with @{app_config['companyEmailSuffix']}?")
             flash(f"Did you try logging in again?")
             return render_template('kudos.html', form=form, firebase_config=firebase_config)
     return render_template('kudos.html', form=form, firebase_config=firebase_config)

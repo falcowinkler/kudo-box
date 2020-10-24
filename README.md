@@ -67,3 +67,10 @@ flask run
 
 Copy the ngrok http url (e.g. `https://1234abcd.ngrok.io`) and enter it as `Request url`
 at `https://api.slack.com/apps/<your-slack-app>/event-subscriptions`.
+
+### deploy
+```shell script
+heroku container:login
+heroku container:push web --app=kudo-box-otto
+heroku container:release web --app=kudo-box-otto
+```
