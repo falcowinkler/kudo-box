@@ -35,7 +35,7 @@ slack_bot_token = slack_config["slack_bot_token"]
 def process(event_data):
     client = WebClient(token=slack_bot_token)
     text = event_data['event']['text']
-    if "read" in text:
+    if "read" in text or "next" in text:
         database = "kudos-test" if "test" in text else "kudos"
         message = event_data["event"]
         # If the incoming message contains "hi", then respond with a "Hello" message
