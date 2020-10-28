@@ -21,9 +21,6 @@ firebase_admin.initialize_app(cred, {
     'databaseURL': firebase_config['databaseURL']
 })
 
-
-
-
 # Our app's Slack Event Adapter for receiving actions via the Events API
 slack_signing_secret = slack_config["slack_signing_secret"]
 slack_events_adapter = SlackEventAdapter(slack_signing_secret, "/slack/events", app)
