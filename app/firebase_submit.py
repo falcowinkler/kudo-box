@@ -1,14 +1,11 @@
-from app import db
+from firebase_admin import db
 
 
-def submit(sender, receiver, text, access_token):
+def submit(text, slack_workspace_id):
     db_name = "kudos-test" if text.startswith("test:") else "kudos"
 
-    db.child(db_name).push(
+    db.reference(db_name).child(slack_workspace_id).push(
         {
-            "sender": sender,
-            "receiver": receiver,
             "text": text
-        },
-        token=access_token
+        }
     )

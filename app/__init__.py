@@ -3,18 +3,22 @@ from flaskappconfig import FlaskAppConfig
 import pyrebase
 import configuration
 
+import firebase_admin
+from firebase_admin import credentials
+
 app = Flask(__name__)
 app.config.from_object(FlaskAppConfig)
 
 app_config = configuration.config['appConfig']
 
-firebase_config = configuration.config['firebaseConfig']
-firebase = pyrebase.initialize_app(firebase_config)
-
 serviceaccount_config = configuration.config['firebaseServiceaccount']
 
 slack_config = configuration.config['slackConfig']
 
-db = firebase.database()
-auth = firebase.auth()
+cred = credentials.Certificate(serviceaccount_config)
+firebase_admin.initialize_app(cred, {
+    'databaseURL': f"https://{serviceaccount_config['project_id']}.firebaseio.com"
+})
+
 from app import kudobot
+from app import routes

@@ -4,12 +4,8 @@ import uuid
 
 from PIL import Image, ImageFont, ImageDraw
 
-
-def create_card(sender, receiver, text):
-    text = f"""\
-From: {sender},
-To: {receiver}:
-{text}"""
+def create_card(text):
+    text = f"""{text}"""
 
     font_path = 'fonts/MostlyMono.ttf'
     num_images = 11
