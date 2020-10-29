@@ -1,10 +1,9 @@
 import hashlib
 import hmac
 import os
-import threading
 import random
+import threading
 
-import slack
 from firebase_admin import db
 from flask import request
 from slack import WebClient
@@ -31,8 +30,9 @@ def verify_slack_request():
 def write_card():
     if verify_slack_request():
         kudo_text = request.values['text']
+        author = request.values['user_name']
         slack_workspace_id = request.values['team_id']
-        firebase.submit(kudo_text, slack_workspace_id)
+        firebase.submit(kudo_text, author, slack_workspace_id)
         return "Your kudo was submitted"
     return "Security checks failed"
 
@@ -42,11 +42,12 @@ def random_title():
         "Here's a sticker",
         "Sorry, you don't get a medal though",
         "Makes a great wall decoration!",
-        "Designer-approved!",
+        "You get this designer-approved card!",
         "You get this tacky card as a reward.",
         "+5 jollity",
         "Show it to all your friends!",
-        "Like the real thing."
+        "Consider the environment before printing.",
+        "For your trophy collection:"
     ])
 
 
