@@ -2,7 +2,9 @@ import hashlib
 import hmac
 import os
 import threading
+import random
 
+import slack
 from firebase_admin import db
 from flask import request
 from slack import WebClient
@@ -35,6 +37,34 @@ def write_card():
     return "Security checks failed"
 
 
+def random_title():
+    return random.choice([
+        "Here's a sticker",
+        "Sorry, you don't get a medal though",
+        "Makes a great wall decoration!",
+        "Designer-approved!",
+        "You get this tacky card as a reward.",
+        "+5 jollity",
+        "Show it to all your friends!",
+        "Like the real thing."
+    ])
+
+
+def random_comment():
+    return random.choice([
+        "Good job!",
+        "Way to go, kiddo",
+        "WTG!",
+        "What would we do without you",
+        "Great success!",
+        "Nice!",
+        "Noice!",
+        "Sweet",
+        "Dandy",
+        "Sweet n' dandy"
+    ])
+
+
 def open_card(slack_request):
     client = WebClient(token=slack_bot_token)
     text = slack_request['text']
@@ -59,8 +89,8 @@ def open_card(slack_request):
                         data={
                             'channels': channel,
                             'filename': "kudos.png",
-                            'title': f'Great job!',
-                            'initial_comment': f'noice',
+                            'title': random_title(),
+                            'initial_comment': random_comment(),
                         }
                         )
         kudos.child(key).delete()
@@ -71,4 +101,4 @@ def handle_message():
     if verify_slack_request():
         download_thread = threading.Thread(target=open_card, args=[request.values])
         download_thread.start()
-        return ('', 200)
+        return '', 200
