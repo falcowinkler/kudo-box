@@ -1,0 +1,25 @@
+{
+  "appConfig": {
+    "companyEmailSuffix": "my-company.com"
+  },
+  "firebaseConfig": {
+    "apiKey": "AIzaDyks5aslw4L-Xiuysdoiqwiowqoidskwqk",
+    "authDomain": "my-firebase-app.firebaseapp.com",
+    "databaseURL": "https://my-firebase-app.firebaseio.com",
+    "projectId": "my-firebase-app",
+    "storageBucket": "my-firebase-app.appspot.com",
+    "messagingSenderId": "892348923489324",
+    "appId": "1:7892348972348932:web:jfijoefwioe932334234"
+  },
+  "firebaseServiceaccount": {
+    "type": "service_account",
+    "project_id": "my-firebase-project",
+    "private_key_id": "9495345nkfsdnjkoi31ij4004502043023494mdfsqwl2k",
+    "client_email": "firebase-adminsdk-cxtmq@my-firebase-project.iam.gserviceaccount.com",
+    "client_id": "04030494019009340603204",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-cxtmq%40my-firebase-project.iam.gserviceaccount.com"
+  }
+}
