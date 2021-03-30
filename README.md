@@ -11,24 +11,13 @@ A virtual kudo box
 
 ### Setup
 - Create a project in firebase
-- Add a web app
 - Add a database ("Realtime Database", not "Cloud firestore")
-- enable "Email signin" option in "Firebase Auth"
-- In the firebase database settings, add this security configuration:
-```json
-{
-  "rules": {
-    ".read": "auth.token.email_verified == true && auth.token.email.matches(/.*@your-company.com$/)",
-    ".write": "auth.token.email_verified == true && auth.token.email.matches(/.*@your-company.com$/)"
-  }
-}
-```
-where `your-company.com` is your company / teams email suffix. This makes sure that, if you deploy the app on heroku,
-only your colleagues can read/write kudo cards.
 - Create an app in slack, turn on event subscriptions and specify
 `https://your-host.com/slack/events` as callback url.
-- Give it the permissions
+- Give it permissions to post to challenges, and for slash commands
 ### Configuration
+
+(Soon to be replaced by postgres!)
 
 Because the app uses firebase for storing data / authentication, and slack for sending the cards,
 there is a lot of configuration necessary. This configuration needs to be specified as
