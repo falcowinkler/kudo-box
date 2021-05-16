@@ -2,32 +2,16 @@
 
 A virtual kudo box
 
-- Team members can upload kudo card texts on a simple web UI
+- Team members can upload kudo card texts with a simple command
 - Moderators can publish the cards in a slack channel, e.g. during agile rituals
-- Free: deployable on firebase & heroku free tier
 
 ### Requirements
 - Python 3 and the packages in `requirements.txt`
 
 ### Setup
 - Create a project in firebase
-- Add a web app
-- Add a database ("Realtime Database", not "Cloud firestore")
-- enable "Email signin" option in "Firebase Auth"
-- In the firebase database settings, add this security configuration:
-```json
-{
-  "rules": {
-    ".read": "auth.token.email_verified == true && auth.token.email.matches(/.*@your-company.com$/)",
-    ".write": "auth.token.email_verified == true && auth.token.email.matches(/.*@your-company.com$/)"
-  }
-}
-```
-where `your-company.com` is your company / teams email suffix. This makes sure that, if you deploy the app on heroku,
-only your colleagues can read/write kudo cards.
 - Create an app in slack, turn on event subscriptions and specify
 `https://your-host.com/slack/events` as callback url.
-- Give it the permissions
 ### Configuration
 
 Because the app uses firebase for storing data / authentication, and slack for sending the cards,
@@ -74,3 +58,7 @@ heroku container:login
 heroku container:push web --app=kudo-box-otto
 heroku container:release web --app=kudo-box-otto
 ```
+
+### Roadmap
+- Encrypt kudos using the team id. Along with request verification, it should ensure that only a certain team can read the kudos.
+- Use Postgres instead of firebase, for easier dev setup and no vendor lock in.
