@@ -8,7 +8,7 @@ from firebase_admin import db
 from flask import request
 from slack import WebClient
 
-import app.firebase_submit as firebase
+import app.persistence as persistence
 from app import app, slack_config
 from app.render import create_card
 
@@ -32,7 +32,7 @@ def write_card():
         kudo_text = request.values['text']
         author = request.values['user_name']
         slack_workspace_id = request.values['team_id']
-        firebase.submit(kudo_text, author, slack_workspace_id)
+        persistence.submit(kudo_text, author, slack_workspace_id)
         return "Your kudo was submitted"
     return "Security checks failed"
 
