@@ -4,7 +4,6 @@ import os
 import random
 import threading
 
-from firebase_admin import db
 from flask import request
 from slack import WebClient
 
@@ -28,11 +27,12 @@ def verify_slack_request():
 
 @app.route('/write_kudo_card', methods=['POST'])
 def write_card():
+    db = None  # TODO
     if verify_slack_request():
         kudo_text = request.values['text']
         author = request.values['user_name']
         slack_workspace_id = request.values['team_id']
-        persistence.submit(kudo_text, author, slack_workspace_id)
+        persistence.submit(db, kudo_text, author, slack_workspace_id)
         return "Your kudo was submitted"
     return "Security checks failed"
 
@@ -68,20 +68,16 @@ def random_comment():
 
 def open_card(slack_request):
     client = WebClient(token=slack_bot_token)
-    text = slack_request['text']
     team_id = slack_request['team_id']
-    database = "kudos-test" if text == "test" else "kudos"
+    db = None  # TODO: postgres client?
     channel = slack_request["channel_id"]
-    kudos = db.reference(database).child(team_id)
-    items = kudos.order_by_key().limit_to_first(1).get()
-    if items is None:
+    kudo = persistence.get_kudo(db, team_id)
+    if kudo is None:
         client.chat_postMessage(
             channel=channel,
             text="no more kudos")
     else:
-        items = list(items.items())
-        key, value = items[0]
-        text = value["text"]
+        text = kudo.text
         file_path = create_card(text)
         client.api_call("files.upload",
                         files={
@@ -94,7 +90,7 @@ def open_card(slack_request):
                             'initial_comment': random_comment(),
                         }
                         )
-        kudos.child(key).delete()
+        persistence.remove(db, kudo.id)
 
 
 @app.route("/read_kudo_card", methods=['POST'])

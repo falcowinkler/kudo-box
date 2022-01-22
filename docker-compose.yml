@@ -1,9 +1,19 @@
 services:
+  database:
+    image: "postgres"
+    env_file:
+      - dev-database.env
+    volumes:
+      - dev-database:/var/lib/postgresql/data/
   web:
     build: .
+    environment:
+      - PORT=5000
+      - CONFIG_FILE=/app/example-config.json
     ports:
       - "5000:5000"
     links:
-      - postgres
-  redis:
-    image: postgres
+      - database
+
+volumes:
+  dev-database:
