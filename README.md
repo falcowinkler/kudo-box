@@ -28,10 +28,16 @@ git push heroku master
 ```
 
 ### Run locally
-
+Docker compose:
 ```bash
 ngrok http 5000 &
 docker-compose up
+```
+
+With flask app seperately:
+```bash
+docker run --name kudo-box-postgres -e SLACK_SIGNING_SECRET=your-signing-secret \
+           --env-file dev-database.env -p 5432:5432 -d postgres
 ```
 
 Copy the ngrok http url (e.g. `https://1234abcd.ngrok.io`) and enter it as `Request url`

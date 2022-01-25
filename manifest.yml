@@ -24,10 +24,6 @@ oauth_config:
       - files:write
       - commands
 settings:
-  event_subscriptions:
-    request_url: http://3266a6d3c376.ngrok.io/slack/events
-    bot_events:
-      - app_mention
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false

@@ -1,4 +1,5 @@
 services:
+# TODO: web depends on database
   database:
     image: "postgres"
     env_file:
