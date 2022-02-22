@@ -5,7 +5,7 @@ This serverless function can respond to a slack command and stores a kudo text i
 ## development
 We can start a local database as follows.
 ```bash
-gcloud alpha emulators datastore start
+gcloud beta emulators datastore start
 ```
 Now you can run the serverless function locally with a test database.
 ```bash
