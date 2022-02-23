@@ -1,5 +1,4 @@
-from collections import namedtuple
-
+# [START functions_write_kudo]
 import functions_framework
 from google.cloud import datastore
 
@@ -27,3 +26,4 @@ def write_kudo(request):
         """
     persist_kudo("team_id", "channel_id", "team_name", "channel_name", "text")
     return f'Success'
+# [END functions_write_kudo]

@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import flask
 import pytest
-import main
+import functions.write_kudo as write_kudo
 
 
 # Create a fake "app" for generating test request contexts.
@@ -13,15 +13,15 @@ def app():
 
 def test_persist_kudo(mocker):
     # Arrange
-    mocker.patch("main.client")
-    key_mock = mocker.patch("main.client.key")
-    put_mock = mocker.patch("main.client.put")
-    entity_mock = mocker.patch("main.datastore.Entity")
+    mocker.patch("functions.write_kudo.client")
+    key_mock = mocker.patch("functions.write_kudo.client.key")
+    put_mock = mocker.patch("functions.write_kudo.client.put")
+    entity_mock = mocker.patch("functions.write_kudo.datastore.Entity")
     entity_mock.return_value = MagicMock()
     key_mock.return_value = "some-key"
 
     # Act
-    main.persist_kudo("team-id", "channel-id", "team-name", "channel-name", "text")
+    write_kudo.persist_kudo("team-id", "channel-id", "team-name", "channel-name", "text")
 
     # Assert
     key_mock.assert_called_with('Team', 'team-id', 'Channel', 'channel-id', 'Kudo')
@@ -31,7 +31,7 @@ def test_persist_kudo(mocker):
 
 
 def test_hello_get(app, mocker):
-    persistence_mock = mocker.patch("main.persist_kudo")
+    mocker.patch("functions.write_kudo.persist_kudo")
     with app.test_request_context():
-        res = main.write_kudo(flask.request, )
+        res = write_kudo.write_kudo(flask.request, )
         assert 'Success' in res
