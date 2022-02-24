@@ -1,6 +1,16 @@
-# [START functions_write_kudo]
+import os
+
 import functions_framework
 from google.cloud import datastore
+from slack.signature import SignatureVerifier
+
+
+def verify_signature(request):
+    request.get_data()  # Decodes received requests into request.data
+    verifier = SignatureVerifier(os.environ['SLACK_SECRET'])
+    if not verifier.is_valid_request(request.data, request.headers):
+        raise ValueError('Invalid request/credentials.')
+
 
 client = datastore.Client()
 
@@ -16,14 +26,11 @@ def persist_kudo(team_id, channel_id, team_name, channel_name, text):
 
 @functions_framework.http
 def write_kudo(request):
-    """Responds to any HTTP request.
-        Args:
-            request (flask.Request): HTTP request object.
-        Returns:
-            The response text or any set of values that can be turned into a
-            Response object using
-            `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
-        """
-    persist_kudo("team_id", "channel_id", "team_name", "channel_name", "text")
-    return f'Success'
-# [END functions_write_kudo]
+    verify_signature(request)
+    persist_kudo(
+        request.form['team_id'],
+        request.form['channel_id'],
+        request.form['team_domain'],
+        request.form["channel_name"],
+        request.form["text"])
+    return f'Your kudo was submitted.'

@@ -1,1 +1,2 @@
 google-cloud-datastore==2.4.0
+slackclient==2.9.3

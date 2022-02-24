@@ -2,13 +2,18 @@ from unittest.mock import MagicMock
 
 import flask
 import pytest
+
 import main
 
 
-# Create a fake "app" for generating test request contexts.
 @pytest.fixture(scope="module")
 def app():
     return flask.Flask(__name__)
+
+
+@pytest.fixture()
+def client(app):
+    return app.test_client()
 
 
 def test_persist_kudo(mocker):
@@ -30,8 +35,43 @@ def test_persist_kudo(mocker):
     put_mock.assert_called_with(entity_mock.return_value, )
 
 
-def test_hello_get(app, mocker):
+def test_hello_get_returns_expected_text(app, mocker):
+    # Arrange
     mocker.patch("main.persist_kudo")
-    with app.test_request_context():
+    mocker.patch("main.verify_signature")
+    mock_data = {
+        'team_id': "team-id-123",
+        'channel_id': "channel-id-123",
+        'text': "some-text",
+        'team_domain': "some-domain",
+        'channel_name': "some-channel-name",
+    }
+
+    # Act
+    with app.test_request_context(data=mock_data):
         res = main.write_kudo(flask.request, )
-        assert 'Success' in res
+
+    # Assert
+    assert 'Your kudo was submitted.' in res
+
+
+def test_hello_persists_correct_data(app, client, mocker):
+    # Arrange
+    persist_mock = mocker.patch("main.persist_kudo")
+    mocker.patch("main.verify_signature")
+    mock_data = {
+        'team_id': "team-id-123",
+        'channel_id': "channel-id-123",
+        'text': "some-text",
+        'team_domain': "some-domain",
+        'channel_name': "some-channel-name",
+    }
+
+    # Act
+    with app.test_request_context(data=mock_data):
+        res = main.write_kudo(flask.request)
+
+    # Assert
+    assert 'Your kudo was submitted.' in res
+    persist_mock.assert_called_with("team-id-123", "channel-id-123", "some-domain", "some-channel-name",
+                                    "some-text")
