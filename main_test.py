@@ -48,14 +48,14 @@ def test_hello_get_returns_expected_text(app, mocker):
     }
 
     # Act
-    with app.test_request_context(data=mock_data):
+    with app.test_request_context(data=mock_data, content_type="multipart/form-data"):
         res = main.write_kudo(flask.request, )
 
     # Assert
     assert 'Your kudo was submitted.' in res
 
 
-def test_hello_persists_correct_data(app, client, mocker):
+def test_hello_persists_correct_data(app, mocker):
     # Arrange
     persist_mock = mocker.patch("main.persist_kudo")
     mocker.patch("main.verify_signature")
@@ -68,10 +68,54 @@ def test_hello_persists_correct_data(app, client, mocker):
     }
 
     # Act
-    with app.test_request_context(data=mock_data):
+    with app.test_request_context(data=mock_data, content_type="multipart/form-data"):
         res = main.write_kudo(flask.request)
 
     # Assert
     assert 'Your kudo was submitted.' in res
     persist_mock.assert_called_with("team-id-123", "channel-id-123", "some-domain", "some-channel-name",
                                     "some-text")
+
+
+def test_read_kudo(app, mocker):
+    # Arrange
+    mock_data = {
+        'team_id': "team-id-123",
+        'channel_id': "channel-id-123",
+        'text': "some-text",
+        'team_domain': "some-domain",
+        'channel_name': "some-channel-name",
+    }
+    query_mock = mocker.patch('main.client.query')
+    query_object_mock = MagicMock()
+    query_mock.return_value = query_object_mock
+    query_object_mock.fetch.return_value = [{"text": "some-kudo-text"}]
+
+    # Act
+    with app.test_request_context(data=mock_data):
+        res = main.read_kudo(flask.request)
+
+    # Assert
+    assert ("some-kudo-text", 200) == res
+
+
+def test_read_kudo_returns_error(app, mocker):
+    # Arrange
+    mock_data = {
+        'team_id': "team-id-123",
+        'channel_id': "channel-id-123",
+        'text': "some-text",
+        'team_domain': "some-domain",
+        'channel_name': "some-channel-name",
+    }
+    query_mock = mocker.patch('main.client.query')
+    query_object_mock = MagicMock()
+    query_mock.return_value = query_object_mock
+    query_object_mock.fetch.return_value = []
+
+    # Act
+    with app.test_request_context(data=mock_data):
+        res = main.read_kudo(flask.request)
+
+    # Assert
+    assert ("Error", 500) == res

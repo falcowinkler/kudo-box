@@ -33,4 +33,19 @@ def write_kudo(request):
         request.form['team_domain'],
         request.form["channel_name"],
         request.form["text"])
-    return f'Your kudo was submitted.'
+    return 'Your kudo was submitted.'
+
+
+@functions_framework.http
+def read_kudo(request):
+    kudo_key = client.key(
+        "Team",
+        request.form["team_id"],
+        "Channel",
+        request.form["channel_id"],
+    )
+    query = client.query(kind="Kudo", ancestor=kudo_key)
+    entities = list(query.fetch())
+    if not entities:
+        return "Error", 500
+    return entities[0]["text"], 200
