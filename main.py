@@ -38,6 +38,7 @@ def write_kudo(request):
 
 @functions_framework.http
 def read_kudo(request):
+    verify_signature(request)
     kudo_key = client.key(
         "Team",
         request.form["team_id"],

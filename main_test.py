@@ -59,6 +59,7 @@ def test_hello_persists_correct_data(app, mocker):
     # Arrange
     persist_mock = mocker.patch("main.persist_kudo")
     mocker.patch("main.verify_signature")
+    mocker.patch("main.verify_signature")
     mock_data = {
         'team_id': "team-id-123",
         'channel_id': "channel-id-123",
@@ -90,6 +91,7 @@ def test_read_kudo(app, mocker):
     query_object_mock = MagicMock()
     query_mock.return_value = query_object_mock
     query_object_mock.fetch.return_value = [{"text": "some-kudo-text"}]
+    mocker.patch("main.verify_signature")
 
     # Act
     with app.test_request_context(data=mock_data):
@@ -112,6 +114,7 @@ def test_read_kudo_returns_error(app, mocker):
     query_object_mock = MagicMock()
     query_mock.return_value = query_object_mock
     query_object_mock.fetch.return_value = []
+    mocker.patch("main.verify_signature")
 
     # Act
     with app.test_request_context(data=mock_data):
