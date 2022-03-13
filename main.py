@@ -3,6 +3,9 @@ import os
 import functions_framework
 from google.cloud import datastore
 from slack.signature import SignatureVerifier
+from render.image import create_card
+import random
+from slack import WebClient
 
 
 def verify_signature(request):
@@ -36,17 +39,63 @@ def write_kudo(request):
     return 'Your kudo was submitted.'
 
 
+def random_title():
+    return random.choice([
+        "Here's a sticker",
+        "Sorry, you don't get a medal though",
+        "Makes a great wall decoration!",
+        "You get this designer-approved card!",
+        "You get this tacky card as a reward.",
+        "+5 jollity",
+        "Show it to all your friends!",
+        "Consider the environment before printing.",
+        "For your trophy collection:"
+    ])
+
+
+def random_comment():
+    return random.choice([
+        "Good job!",
+        "Way to go, kiddo",
+        "WTG!",
+        "What would we do without you",
+        "Great success!",
+        "Nice!",
+        "Noice!",
+        "Sweet",
+        "Dandy",
+        "Sweet n' dandy"
+    ])
+
+
 @functions_framework.http
 def read_kudo(request):
-    verify_signature(request)
+    channel = request.form["channel_id"]
     kudo_key = client.key(
         "Team",
         request.form["team_id"],
         "Channel",
-        request.form["channel_id"],
+        channel
     )
     query = client.query(kind="Kudo", ancestor=kudo_key)
     entities = list(query.fetch())
     if not entities:
         return "Error", 500
-    return entities[0]["text"], 200
+    entity = entities[0]
+    text = entity["text"]
+    file_path = create_card(text)
+    slack_bot_token = os.environ['SLACK_BOT_TOKEN']
+    slack_client = WebClient(token=slack_bot_token)
+    slack_client.api_call("files.upload",
+                          files={
+                              "file": file_path
+                          },
+                          data={
+                              'channels': channel,
+                              'filename': "kudos.png",
+                              'title': random_title(),
+                              'initial_comment': random_comment(),
+                          }
+                          )
+    client.delete(entity.key)
+    return 200
