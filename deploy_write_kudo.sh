@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
 if [ -z ${SLACK_SIGNING_SECRET+x} ]; then
   echo "SLACK_SIGNING_SECRET is not set as environment variable"
   exit 1

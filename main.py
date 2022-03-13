@@ -5,7 +5,6 @@ from http import HTTPStatus
 
 import functions_framework
 from google.cloud import datastore
-from google.pubsub_v1 import Topic
 from slack.signature import SignatureVerifier
 from render.image import create_card
 import random
@@ -96,7 +95,7 @@ def process_read_kudo_request(event, context):
                               'initial_comment': random_comment(),
                           }
                           )
-    client.delete(entity_key)
+    client.delete(client.key(*entity_key))
 
 
 @functions_framework.http
@@ -122,11 +121,12 @@ def read_kudo(request):
     }
     topic_path = publisher.topic_path(PROJECT_ID, "read-kudo-queue")
     message_bytes = json.dumps(payload).encode('utf-8')
-
+    # This is what will be sent to pubsub (use for debugging in test-read-kudo-payload.json):
+    # print(base64.b64encode(message_bytes))
     try:
         publish_future = publisher.publish(topic_path, data=message_bytes)
         publish_future.result()  # Verify the publish succeeded
-        return 'Message published.'
+        return 'Drawing next kudo card...'
     except Exception as e:
         if e.code == HTTPStatus.NOT_FOUND:
             topic_name = 'projects/{project_id}/topics/{topic}'.format(
