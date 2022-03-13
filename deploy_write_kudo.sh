@@ -11,6 +11,6 @@ fi
 gcloud functions deploy write_kudo \
 --runtime python39 \
 --trigger-http \
---set-env-vars "SLACK_SECRET=${SLACK_SIGNING_SECRET}" \
+--set-env-vars "SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}" \
 --set-env-vars "SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}" \
 --allow-unauthenticated

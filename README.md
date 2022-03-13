@@ -18,15 +18,27 @@ pip install -r dev-requirements.txt
 ```
 
 ## development
-We can start a local database as follows.
+First we need some env vars;
 ```bash
-gcloud beta emulators datastore start
+export SLACK_SIGNING_SECRET=<Signing secret from basic information tab in api.slack.com/apps>
+export SLACK_BOT_TOKEN=<Bot user oauth token from Oauth2 tab in api.slack.com/apps>
+```
+We can start a local database/pubsub as follows.
+```bash
+gcloud beta emulators datastore start &
+gcloud beta emulators pubsub start &
 ```
 Now you can run the serverless function locally with a test database.
 ```bash
 export DATASTORE_EMULATOR_HOST=localhost:8081
+export PUBSUB_EMULATOR_HOST=localhost:8432
 functions-framework-python --target write_kudo --debug
 ```
+If you want to debug localy with an actual slack request, use ngrok:
+```bash
+ngrok http 8080
+```
+
 The `--debug` flag allows you to attach a debugger as well,
 or you can create a pycharm run configuration that executes above command, 
 and launch it with debugger.
