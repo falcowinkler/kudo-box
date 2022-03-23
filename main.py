@@ -100,6 +100,7 @@ def process_read_kudo_request(event, context):
 
 @functions_framework.http
 def read_kudo(request):
+    verify_signature(request)
     channel_id = request.form["channel_id"]
     kudo_key = client.key(
         "Team",
