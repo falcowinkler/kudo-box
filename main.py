@@ -120,6 +120,7 @@ def read_kudo(request):
         "entity_key": entity_key.flat_path,
         "channel_id": channel_id
     }
+
     topic_path = publisher.topic_path(PROJECT_ID, "read-kudo-queue")
     message_bytes = json.dumps(payload).encode('utf-8')
     # This is what will be sent to pubsub (use for debugging in test-read-kudo-payload.json):
