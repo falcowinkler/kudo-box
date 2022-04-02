@@ -1,0 +1,22 @@
+from unittest.mock import MagicMock
+
+import persistence.gcloud
+
+
+def test_persist_kudo(mocker):
+    # Arrange
+    mocker.patch("persistence.gcloud.client")
+    key_mock = mocker.patch("persistence.gcloud.client.key")
+    put_mock = mocker.patch("persistence.gcloud.client.put")
+    entity_mock = mocker.patch("persistence.gcloud.datastore.Entity")
+    entity_mock.return_value = MagicMock()
+    key_mock.return_value = "some-key"
+
+    # Act
+    persistence.gcloud.persist_kudo("team-id", "channel-id", "team-name", "channel-name", "text")
+
+    # Assert
+    key_mock.assert_called_with('Team', 'team-id', 'Channel', 'channel-id', 'Kudo')
+    entity_mock.assert_called_with(key="some-key")
+    entity_mock.return_value.update.assert_called_with({"text": "text"})
+    put_mock.assert_called_with(entity_mock.return_value, )

@@ -4,6 +4,7 @@ import flask
 import pytest
 
 import main
+from persistence.gcloud import Kudo
 
 
 @pytest.fixture(scope="module")
@@ -14,25 +15,6 @@ def app():
 @pytest.fixture()
 def client(app):
     return app.test_client()
-
-
-def test_persist_kudo(mocker):
-    # Arrange
-    mocker.patch("main.client")
-    key_mock = mocker.patch("main.client.key")
-    put_mock = mocker.patch("main.client.put")
-    entity_mock = mocker.patch("main.datastore.Entity")
-    entity_mock.return_value = MagicMock()
-    key_mock.return_value = "some-key"
-
-    # Act
-    main.persist_kudo("team-id", "channel-id", "team-name", "channel-name", "text")
-
-    # Assert
-    key_mock.assert_called_with('Team', 'team-id', 'Channel', 'channel-id', 'Kudo')
-    entity_mock.assert_called_with(key="some-key")
-    entity_mock.return_value.update.assert_called_with({"text": "text"})
-    put_mock.assert_called_with(entity_mock.return_value, )
 
 
 def test_hello_get_returns_expected_text(app, mocker):
@@ -87,10 +69,9 @@ def test_read_kudo(app, mocker):
         'team_domain': "some-domain",
         'channel_name': "some-channel-name",
     }
-    query_mock = mocker.patch('main.client.query')
-    query_object_mock = MagicMock()
-    query_mock.return_value = query_object_mock
-    query_object_mock.fetch.return_value = [{"text": "some-kudo-text"}]
+    query_mock = mocker.patch('main.get_kudo')
+    query_mock.return_value = Kudo("some-kudo-text", "/some/kudo/id")
+    add_to_render_queue = mocker.patch('main.add_to_render_queue')
     mocker.patch("main.verify_signature")
 
     # Act
@@ -98,7 +79,8 @@ def test_read_kudo(app, mocker):
         res = main.read_kudo(flask.request)
 
     # Assert
-    assert ("some-kudo-text", 200) == res
+    assert ("Drawing next kudo...", 200) == res
+    add_to_render_queue.assert_called_with("channel-id-123", Kudo("some-kudo-text", "/some/kudo/id"))
 
 
 def test_read_kudo_returns_error(app, mocker):
@@ -110,10 +92,10 @@ def test_read_kudo_returns_error(app, mocker):
         'team_domain': "some-domain",
         'channel_name': "some-channel-name",
     }
-    query_mock = mocker.patch('main.client.query')
-    query_object_mock = MagicMock()
-    query_mock.return_value = query_object_mock
-    query_object_mock.fetch.return_value = []
+    query_mock = mocker.patch('main.get_kudo')
+    query_mock.return_value = Kudo("some-kudo-text", "/some/kudo/id")
+    add_to_render_queue = mocker.patch('main.add_to_render_queue')
+    add_to_render_queue.side_effect = Exception('error')
     mocker.patch("main.verify_signature")
 
     # Act
@@ -121,4 +103,4 @@ def test_read_kudo_returns_error(app, mocker):
         res = main.read_kudo(flask.request)
 
     # Assert
-    assert ("Error", 500) == res
+    assert ("error", 500) == res
