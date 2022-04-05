@@ -7,7 +7,7 @@ from slack.signature import SignatureVerifier
 
 from persistence.gcloud import persist_kudo, get_kudo, delete_kudo
 from render.queue import add_to_render_queue
-from render.slack import upload_kudo
+from render.slack import render_and_upload_kudo
 
 
 def verify_signature(request):
@@ -34,15 +34,15 @@ def process_read_kudo_request(event, context):
     text = message['text']
     channel = message['channel_id']
     entity_key = message['entity_key']
-    upload_kudo(channel, text)
+    render_and_upload_kudo(channel, text)
     delete_kudo(entity_key)
 
 
 @functions_framework.http
 def read_kudo(request):
+    team_id = request.form["team_id"]
     verify_signature(request)
     channel_id = request.form["channel_id"]
-    team_id = request.form["team_id"]
     kudo = get_kudo(team_id, channel_id)
     if not kudo:
         return "No more kudos", 200

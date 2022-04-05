@@ -20,3 +20,18 @@ def test_persist_kudo(mocker):
     entity_mock.assert_called_with(key="some-key")
     entity_mock.return_value.update.assert_called_with({"text": "text"})
     put_mock.assert_called_with(entity_mock.return_value, )
+
+
+def test_get_bot_token(mocker):
+    # Arrange
+    mocker.patch("persistence.gcloud.client")
+    client_query_mock = mocker.patch("persistence.gcloud.client.query")
+    query_mock = MagicMock()
+    client_query_mock.return_value = query_mock
+    query_mock.fetch.return_value = [{"bot-token": "abc-123"}]
+
+    # Act
+    result = persistence.gcloud.get_bot_token("team-id")
+
+    # Assert
+    assert result == "abc-123"

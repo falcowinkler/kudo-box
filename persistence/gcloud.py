@@ -35,3 +35,7 @@ def get_kudo(team_id, channel_id):
 
 def delete_kudo(kudo_key):
     client.delete(client.key(*kudo_key))
+
+
+def get_bot_token(team_id):
+    return

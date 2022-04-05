@@ -6,7 +6,7 @@ from render.image import create_card
 from render.text import random_title, random_comment
 
 
-def upload_kudo(channel, text):
+def render_and_upload_kudo(channel, text):
     file_path = create_card(text)
     slack_bot_token = os.environ['SLACK_BOT_TOKEN']
     slack_client = WebClient(token=slack_bot_token)
