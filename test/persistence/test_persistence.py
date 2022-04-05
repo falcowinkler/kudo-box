@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock
+from persistence.gcloud import Credentials
 
 import persistence.gcloud
 
@@ -28,10 +29,12 @@ def test_get_bot_token(mocker):
     client_query_mock = mocker.patch("persistence.gcloud.client.query")
     query_mock = MagicMock()
     client_query_mock.return_value = query_mock
-    query_mock.fetch.return_value = [{"bot-token": "abc-123"}]
+    query_mock.fetch.return_value = [{"bot_token": "abc-123"}]
 
     # Act
     result = persistence.gcloud.get_bot_token("team-id")
 
     # Assert
-    assert result == "abc-123"
+    assert result == Credentials("abc-123")
+
+# def test_persist_bot_token():

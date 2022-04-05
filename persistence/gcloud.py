@@ -4,6 +4,7 @@ from collections import namedtuple
 from google.cloud import datastore
 
 Kudo = namedtuple("Kudo", ["text", "key"])
+Credentials = namedtuple("Credentials", ["bot_token"])
 
 client = datastore.Client()
 
@@ -38,4 +39,16 @@ def delete_kudo(kudo_key):
 
 
 def get_bot_token(team_id):
+    bot_key = client.key("Team", team_id)
+    query = client.query(kind="Credentials", ancestor=bot_key)
+
+    entities = list(query.fetch())
+    if not entities:
+        raise Exception("No credentials found")
+    entity = entities[0]
+
+    return Credentials(entity['bot_token'])
+
+
+def persist_bot_token(team_id, bot_token):
     return
