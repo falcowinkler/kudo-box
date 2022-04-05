@@ -34,7 +34,7 @@ export DATASTORE_EMULATOR_HOST=localhost:8081
 export PUBSUB_EMULATOR_HOST=localhost:8432
 functions-framework-python --target write_kudo --debug
 ```
-If you want to debug localy with an actual slack request, use ngrok:
+If you want to debug locally with an actual slack request, use ngrok:
 ```bash
 ngrok http 8080
 ```
