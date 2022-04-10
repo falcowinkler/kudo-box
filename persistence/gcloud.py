@@ -3,17 +3,17 @@ from collections import namedtuple
 
 from google.cloud import datastore
 
-Kudo = namedtuple("Kudo", ["text", "key"])
+EncryptedKudo = namedtuple("EncryptedKudo", ["token", "key"])
 Credentials = namedtuple("Credentials", ["bot_token"])
 
 client = datastore.Client()
 
 
-def persist_kudo(team_id, channel_id, team_name, channel_name, text):
+def persist_kudo(team_id, channel_id, token):
     kudo_key = client.key("Team", team_id, "Channel", channel_id, "Kudo")
     entity = datastore.Entity(key=kudo_key)
     entity.update({
-        "text": text
+        "token": token
     })
     client.put(entity)
 
@@ -31,7 +31,7 @@ def get_kudo(team_id, channel_id):
     if not entities:
         return
     entity = random.choice(entities)
-    return Kudo(entity['text'], entity.key.flat_path)
+    return EncryptedKudo(entity['token'], entity.key.flat_path)
 
 
 def delete_kudo(kudo_key):

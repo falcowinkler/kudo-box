@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+from collections import namedtuple
 
 import functions_framework
 from slack.signature import SignatureVerifier
@@ -8,6 +9,9 @@ from slack.signature import SignatureVerifier
 from persistence.gcloud import persist_kudo, get_kudo, delete_kudo
 from render.queue import add_to_render_queue
 from render.slack import render_and_upload_kudo
+import encryption.kudos as kudos_encryption
+
+Kudo = namedtuple("Kudo", ["text", "key"])
 
 
 def verify_signature(request):
@@ -20,12 +24,12 @@ def verify_signature(request):
 @functions_framework.http
 def write_kudo(request):
     verify_signature(request)
+    password = derive_password(request)
+    text = kudos_encryption.encrypt(request.form["text"], password)
     persist_kudo(
         request.form['team_id'],
         request.form['channel_id'],
-        request.form['team_domain'],
-        request.form["channel_name"],
-        request.form["text"])
+        text)
     return 'Your kudo was submitted.'
 
 
@@ -40,14 +44,24 @@ def process_read_kudo_request(event, context):
 
 @functions_framework.http
 def read_kudo(request):
-    team_id = request.form["team_id"]
     verify_signature(request)
+    team_id = request.form["team_id"]
     channel_id = request.form["channel_id"]
-    kudo = get_kudo(team_id, channel_id)
-    if not kudo:
+    encrypted_kudo = get_kudo(team_id, channel_id)
+    if not encrypted_kudo:
         return "No more kudos", 200
+    password = derive_password(request)
+    kudo = Kudo(kudos_encryption.decrypt(encrypted_kudo.token, password), encrypted_kudo.key)
     try:
         add_to_render_queue(channel_id, kudo)
         return "Drawing next kudo...", 200
     except Exception as e:
         return str(e), 500
+
+
+def derive_password(request):
+    return kudos_encryption.make_password(
+        request.form['team_domain'],
+        request.form["channel_name"],
+        os.getenv("ENCRYPTION_SECRET")
+    )
