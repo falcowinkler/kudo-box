@@ -25,11 +25,11 @@ def verify_signature(request):
 def write_kudo(request):
     verify_signature(request)
     password = derive_password(request)
-    text = kudos_encryption.encrypt(request.form["text"], password)
+    encrypted_kudo = kudos_encryption.encrypt(request.form["text"], password)
     persist_kudo(
         request.form['team_id'],
         request.form['channel_id'],
-        text)
+        encrypted_kudo)
     return 'Your kudo was submitted.'
 
 

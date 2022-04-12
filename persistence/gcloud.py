@@ -9,11 +9,11 @@ Credentials = namedtuple("Credentials", ["bot_token"])
 client = datastore.Client()
 
 
-def persist_kudo(team_id, channel_id, token):
+def persist_kudo(team_id, channel_id, encrypted_text):
     kudo_key = client.key("Team", team_id, "Channel", channel_id, "Kudo")
     entity = datastore.Entity(key=kudo_key)
     entity.update({
-        "token": token
+        "token": encrypted_text
     })
     client.put(entity)
 
