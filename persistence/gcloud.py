@@ -51,4 +51,10 @@ def get_bot_token(team_id):
 
 
 def persist_bot_token(team_id, bot_token):
-    return
+    bot_key = client.key("Team", team_id, "Credentials")
+    entity = datastore.Entity(key=bot_key)
+    entity.update({
+        "bot_token": bot_token
+    })
+    client.put(entity)
+

@@ -37,4 +37,21 @@ def test_get_bot_token(mocker):
     # Assert
     assert result == Credentials("abc-123")
 
-# def test_persist_bot_token():
+
+def test_persist_bot_token(mocker):
+    # Arrange
+    mocker.patch("persistence.gcloud.client")
+    key_mock = mocker.patch("persistence.gcloud.client.key")
+    put_mock = mocker.patch("persistence.gcloud.client.put")
+    entity_mock = mocker.patch("persistence.gcloud.datastore.Entity")
+    entity_mock.return_value = MagicMock()
+    key_mock.return_value = "some-key"
+
+    # Act
+    persistence.gcloud.persist_bot_token("team-id", b"some-bot-token")
+
+    # Assert
+    key_mock.assert_called_with('Team', 'team-id', 'Credentials')
+    entity_mock.assert_called_with(key="some-key")
+    entity_mock.return_value.update.assert_called_with({"bot_token": b"some-bot-token"})
+    put_mock.assert_called_with(entity_mock.return_value, )
