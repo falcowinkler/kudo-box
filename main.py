@@ -6,7 +6,7 @@ from collections import namedtuple
 import functions_framework
 from slack.signature import SignatureVerifier
 
-from persistence.gcloud import persist_kudo, get_kudo, delete_kudo
+from persistence.gcloud import persist_kudo, get_kudo, delete_kudo, get_bot_token, persist_bot_token
 from render.queue import add_to_render_queue
 from render.slack import render_and_upload_kudo
 import encryption.kudos as kudos_encryption
@@ -65,3 +65,23 @@ def derive_password(request):
         request.form["channel_name"],
         os.getenv("ENCRYPTION_SECRET")
     )
+
+
+@functions_framework.http
+def oauth_redirect(request):
+    code = request.args.get('code')
+    resp = oauth_access(code)
+    team_id = resp['team_id']
+    persist_bot_token(team_id, resp)
+
+
+def oauth_access(code):
+    url = "https://slack.com/api/oauth.access"
+    client_id = os.environ['SLACK_CLIENT_ID'].encode('utf-8')
+    client_secret = os.environ['SLACK_CLIENT_SECRET'].encode('utf-8')
+    data = {
+        'code': code,
+    }
+    auth = (client_id, client_secret)
+    resp = requests.post(url, data=data, auth=auth)
+    return resp.json()
