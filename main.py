@@ -2,6 +2,7 @@ import base64
 import json
 import os
 import requests
+import slack
 from collections import namedtuple
 
 import functions_framework
