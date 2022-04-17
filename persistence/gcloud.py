@@ -39,19 +39,18 @@ def delete_kudo(kudo_key):
 
 
 def get_bot_token(team_id):
-    bot_key = client.key("Team", team_id)
-    query = client.query(kind="Credentials", ancestor=bot_key)
+    query = client.query(kind="Credentials")
+    query.add_filter("name", "=", team_id)
 
     entities = list(query.fetch())
     if not entities:
         raise Exception("No credentials found")
-    entity = entities[0]
 
-    return Credentials(entity['bot_token'])
+    return Credentials(entities[0]['bot_token'])
 
 
 def persist_bot_token(team_id, bot_token):
-    bot_key = client.key("Team", team_id, "Credentials")
+    bot_key = client.key("Credentials", team_id)
     entity = datastore.Entity(key=bot_key)
     entity.update({
         "bot_token": bot_token

@@ -70,18 +70,25 @@ def derive_password(request):
 @functions_framework.http
 def oauth_redirect(request):
     code = request.args.get('code')
-    resp = oauth_access(code)
-    team_id = resp['team_id']
-    persist_bot_token(team_id, resp)
+    response = oauth_access(code)
+    team_id = response['team_id']
+    persist_bot_token(team_id, response)
 
 
 def oauth_access(code):
-    url = "https://slack.com/api/oauth.access"
-    client_id = os.environ['SLACK_CLIENT_ID'].encode('utf-8')
-    client_secret = os.environ['SLACK_CLIENT_SECRET'].encode('utf-8')
     data = {
         'code': code,
     }
-    auth = (client_id, client_secret)
-    resp = requests.post(url, data=data, auth=auth)
+
+    auth = (
+        os.environ['SLACK_CLIENT_ID'].encode('utf-8'),
+        os.environ['SLACK_CLIENT_SECRET'].encode('utf-8')
+    )
+
+    resp = requests.post(
+        "https://slack.com/api/oauth.access",
+        data=data,
+        auth=auth
+    )
+
     return resp.json()

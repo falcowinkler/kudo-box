@@ -51,7 +51,7 @@ def test_persist_bot_token(mocker):
     persistence.gcloud.persist_bot_token("team-id", b"some-bot-token")
 
     # Assert
-    key_mock.assert_called_with('Team', 'team-id', 'Credentials')
+    key_mock.assert_called_with('Credentials', "team-id")
     entity_mock.assert_called_with(key="some-key")
     entity_mock.return_value.update.assert_called_with({"bot_token": b"some-bot-token"})
     put_mock.assert_called_with(entity_mock.return_value, )
