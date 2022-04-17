@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import requests
 from collections import namedtuple
 
 import functions_framework
@@ -76,19 +77,12 @@ def oauth_redirect(request):
 
 
 def oauth_access(code):
+    url = "https://slack.com/api/oauth.access"
+    client_id = os.environ['SLACK_CLIENT_ID'].encode('utf-8')
+    client_secret = os.environ['SLACK_CLIENT_SECRET'].encode('utf-8')
     data = {
         'code': code,
     }
-
-    auth = (
-        os.environ['SLACK_CLIENT_ID'].encode('utf-8'),
-        os.environ['SLACK_CLIENT_SECRET'].encode('utf-8')
-    )
-
-    resp = requests.post(
-        "https://slack.com/api/oauth.access",
-        data=data,
-        auth=auth
-    )
-
+    auth = (client_id, client_secret)
+    resp = requests.post(url, data=data, auth=auth)
     return resp.json()
