@@ -74,7 +74,7 @@ def derive_password(request):
 def oauth_redirect(request):
     code = request.args['code']
     response = oauth_access(code)
-    team_id = response['team_id']
+    team_id = response['team']['id']
     access_token = response['access_token']
     persist_bot_token(team_id, access_token)
 
