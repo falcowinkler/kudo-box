@@ -83,9 +83,9 @@ def oauth_access(code):
     client = slack.WebClient()
     client_id = os.environ['SLACK_CLIENT_ID']
     client_secret = os.environ['SLACK_CLIENT_SECRET']
-    resp = client.oauth_v2_access(
+    response = client.oauth_v2_access(
         client_id=client_id,
         client_secret=client_secret,
         code=code
     )
-    return resp.json()
+    return response
