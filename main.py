@@ -20,6 +20,8 @@ Kudo = namedtuple("Kudo", ["text", "key"])
 def verify_signature(request):
     request.get_data()  # Decodes received requests into request.data
     verifier = SignatureVerifier(os.environ['SLACK_SIGNING_SECRET'])
+    if get_bot_token(request.form["team_id"]) != request.form["access_token"]:
+        raise ValueError('Not authorized')
     if not verifier.is_valid_request(request.data, request.headers):
         raise ValueError('Invalid request/credentials.')
 
@@ -41,7 +43,7 @@ def process_read_kudo_request(event, context):
     text = message['text']
     channel = message['channel_id']
     entity_key = message['entity_key']
-    render_and_upload_kudo(channel, text)
+    render_and_upload_kudo(channel, text, get_bot_token(message['team_id']))
     delete_kudo(entity_key)
 
 
@@ -77,6 +79,7 @@ def oauth_redirect(request):
     team_id = response['team']['id']
     access_token = response['access_token']
     persist_bot_token(team_id, access_token)
+    return "Authentication succeeded"
 
 
 def oauth_access(code):
