@@ -8,11 +8,12 @@ publisher = pubsub_v1.PublisherClient()
 PROJECT_ID = os.getenv('GOOGLE_CLOUD_PROJECT')
 
 
-def add_to_render_queue(channel_id, kudo):
+def add_to_render_queue(channel_id, kudo, team_id):
     payload = {
         "text": kudo.text,
         "entity_key": kudo.key,
-        "channel_id": channel_id
+        "channel_id": channel_id,
+        "team_id": team_id
     }
     topic_path = publisher.topic_path(PROJECT_ID, "read-kudo-queue")
     message_bytes = json.dumps(payload).encode('utf-8')

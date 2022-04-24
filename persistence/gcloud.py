@@ -38,7 +38,7 @@ def delete_kudo(kudo_key):
     client.delete(client.key(*kudo_key))
 
 
-def get_bot_token(team_id):
+def get_credentials(team_id):
     query = client.query(kind="Credentials")
     query.add_filter("team_id", "=", team_id)
 

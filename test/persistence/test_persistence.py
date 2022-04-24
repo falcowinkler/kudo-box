@@ -32,7 +32,7 @@ def test_get_bot_token(mocker):
     query_mock.fetch.return_value = [{"bot_token": "abc-123"}]
 
     # Act
-    result = persistence.gcloud.get_bot_token("team-id")
+    result = persistence.gcloud.get_credentials("team-id")
 
     # Assert
     assert result == Credentials("abc-123")
@@ -53,5 +53,5 @@ def test_persist_bot_token(mocker):
     # Assert
     key_mock.assert_called_with('Credentials', "team-id")
     entity_mock.assert_called_with(key="some-key")
-    entity_mock.return_value.update.assert_called_with({"bot_token": b"some-bot-token"})
+    entity_mock.return_value.update.assert_called_with({'team_id': 'team-id', "bot_token": b"some-bot-token"})
     put_mock.assert_called_with(entity_mock.return_value, )

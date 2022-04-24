@@ -8,9 +8,9 @@ import slack
 from slack.signature import SignatureVerifier
 
 import encryption.kudos as kudos_encryption
-from persistence.gcloud import persist_kudo, get_kudo, delete_kudo, get_bot_token, persist_bot_token
+from persistence.gcloud import persist_kudo, get_kudo, delete_kudo, get_credentials, persist_bot_token
 from render.queue import add_to_render_queue
-from render.slack import render_and_upload_kudo
+from render.render_to_slack import render_and_upload_kudo
 
 Kudo = namedtuple("Kudo", ["text", "key"])
 
@@ -18,8 +18,6 @@ Kudo = namedtuple("Kudo", ["text", "key"])
 def verify_signature(request):
     request.get_data()  # Decodes received requests into request.data
     verifier = SignatureVerifier(os.environ['SLACK_SIGNING_SECRET'])
-    if get_bot_token(request.form["team_id"]) != request.form["access_token"]:
-        raise ValueError('Not authorized')
     if not verifier.is_valid_request(request.data, request.headers):
         raise ValueError('Invalid request/credentials.')
 
@@ -41,7 +39,7 @@ def process_read_kudo_request(event, context):
     text = message['text']
     channel = message['channel_id']
     entity_key = message['entity_key']
-    render_and_upload_kudo(channel, text, get_bot_token(message['team_id']))
+    render_and_upload_kudo(channel, text, get_credentials(message['team_id']))
     delete_kudo(entity_key)
 
 
@@ -56,7 +54,7 @@ def read_kudo(request):
     password = derive_password(request)
     kudo = Kudo(kudos_encryption.decrypt(encrypted_kudo.token, password), encrypted_kudo.key)
     try:
-        add_to_render_queue(channel_id, kudo)
+        add_to_render_queue(channel_id, kudo, team_id)
         return "Drawing next kudo...", 200
     except Exception as e:
         return str(e), 500

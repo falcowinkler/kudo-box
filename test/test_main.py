@@ -86,7 +86,7 @@ def test_read_kudo(app, mocker):
 
     # Assert
     assert ("Drawing next kudo...", 200) == res
-    add_to_render_queue.assert_called_with("channel-id-123", main.Kudo("some-kudo-text", "/some/kudo/id"))
+    add_to_render_queue.assert_called_with("channel-id-123", main.Kudo("some-kudo-text", "/some/kudo/id"), 'team-id-123')
     decrypt_mock.assert_called_with(b"some-kudo-token", "some-password")
 
 
