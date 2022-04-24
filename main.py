@@ -75,7 +75,7 @@ def oauth_redirect(request):
     team_id = response['team']['id']
     access_token = response['access_token']
     persist_bot_token(team_id, access_token)
-    return "Authentication succeeded"
+    return "All done! You can start writing Kudos now"
 
 
 def oauth_access(code):
