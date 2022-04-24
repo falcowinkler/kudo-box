@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 import flask
 import pytest
 

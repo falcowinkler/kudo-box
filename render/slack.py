@@ -1,5 +1,3 @@
-import os
-
 from slack import WebClient
 
 from render.image import create_card

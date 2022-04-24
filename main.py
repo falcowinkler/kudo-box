@@ -1,18 +1,16 @@
 import base64
 import json
 import os
-import requests
-import slack
 from collections import namedtuple
 
 import functions_framework
+import slack
 from slack.signature import SignatureVerifier
-from slackeventsapi import SlackEventAdapter
 
+import encryption.kudos as kudos_encryption
 from persistence.gcloud import persist_kudo, get_kudo, delete_kudo, get_bot_token, persist_bot_token
 from render.queue import add_to_render_queue
 from render.slack import render_and_upload_kudo
-import encryption.kudos as kudos_encryption
 
 Kudo = namedtuple("Kudo", ["text", "key"])
 

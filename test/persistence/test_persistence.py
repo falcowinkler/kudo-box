@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
-from persistence.gcloud import Credentials
 
 import persistence.gcloud
+from persistence.gcloud import Credentials
 
 
 def test_persist_kudo(mocker):
