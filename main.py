@@ -25,10 +25,13 @@ def verify_signature(request):
 @functions_framework.http
 def write_kudo(request):
     verify_signature(request)
+    team_id = request.form['team_id']
+    if get_credentials(team_id) is None:
+        return authorization_error_message(request.form["team_domain"])
     password = derive_password(request)
     encrypted_kudo = kudos_encryption.encrypt(request.form["text"], password)
     persist_kudo(
-        request.form['team_id'],
+        team_id,
         request.form['channel_id'],
         encrypted_kudo)
     return 'Your kudo was submitted.'
@@ -47,6 +50,8 @@ def process_read_kudo_request(event, context):
 def read_kudo(request):
     verify_signature(request)
     team_id = request.form["team_id"]
+    if get_credentials(team_id) is None:
+        return authorization_error_message(request.form["team_domain"])
     channel_id = request.form["channel_id"]
     encrypted_kudo = get_kudo(team_id, channel_id)
     if not encrypted_kudo:
@@ -58,6 +63,14 @@ def read_kudo(request):
         return "Drawing next kudo...", 200
     except Exception as e:
         return str(e), 500
+
+
+def authorization_error_message(team_domain):
+    scopes = "channels:join,chat:write,commands,files:write"
+    client_id = os.getenv("SLACK_CLIENT_ID")
+    return f"""Authorization Error. Please visit 
+            https://{team_domain}.slack.com/oauth/v2/authorize?client_id={client_id}&scope={scopes}
+            to authorize."""
 
 
 def derive_password(request):

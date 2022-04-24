@@ -44,7 +44,7 @@ def get_credentials(team_id):
 
     entities = list(query.fetch())
     if not entities:
-        raise Exception("No credentials found")
+        return
 
     return Credentials(entities[0]['bot_token'])
 
