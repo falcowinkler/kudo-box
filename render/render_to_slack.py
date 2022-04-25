@@ -7,6 +7,10 @@ from render.text import random_title, random_comment
 def render_and_upload_kudo(channel, text, credentials):
     file_path = create_card(text)
     slack_client = WebClient(token=credentials.bot_token)
+    try:
+        slack_client.conversations_join(channel=channel)
+    except:  # already in channel
+        pass
     slack_client.api_call("files.upload",
                           files={
                               "file": file_path

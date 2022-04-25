@@ -15,8 +15,6 @@ if [ -z ${ENCRYPTION_SECRET+x} ]; then
   exit 1
 fi
 
-echo "SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}"
-
 gcloud functions deploy read_kudo \
 --runtime python39 \
 --trigger-http \
