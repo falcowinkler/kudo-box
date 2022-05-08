@@ -4,11 +4,14 @@ from http import HTTPStatus
 
 from google.cloud import pubsub_v1
 
-publisher = pubsub_v1.PublisherClient()
+publisher = None
 PROJECT_ID = os.getenv('GOOGLE_CLOUD_PROJECT')
 
 
 def add_to_render_queue(channel_id, kudo, team_id):
+    global publisher
+    if publisher is None:
+        publisher = pubsub_v1.PublisherClient()
     payload = {
         "text": kudo.text,
         "entity_key": kudo.key,
