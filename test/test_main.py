@@ -135,6 +135,9 @@ def test_read_kudo_returns_authorization_error(app, mocker):
     scopes = "channels:join,chat:write,commands,files:write"
     expected_link = f"https://some-domain.slack.com/oauth/v2/authorize?client_id=slack-client-id&scope={scopes}"
     with app.test_request_context(data=mock_data):
-        res = main.read_kudo(flask.request)
-    assert ("Authorization Error. "
-            f'Please <a href="{expected_link}">click here</a> to authorize.', 403) == res
+        res_read_kudo = main.read_kudo(flask.request)
+        res_write_kudo = main.read_kudo(flask.request)
+    expected_error = ("Authorization Error. "
+                      f'Please <a href="{expected_link}">click here</a> to authorize.', 403)
+    assert expected_error == res_write_kudo
+    assert expected_error == res_read_kudo
