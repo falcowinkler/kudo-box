@@ -32,5 +32,5 @@ def add_to_render_queue(channel_id, kudo, team_id):
                 topic='read-kudo-queue',
             )
             publisher.create_topic(name=topic_name)
-            return add_to_render_queue(channel_id, kudo)
+            return add_to_render_queue(channel_id, kudo, team_id)
         raise e

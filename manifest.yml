@@ -2,21 +2,24 @@ display_information:
   name: kudo box
   description: Good work deserves recognition ;)
   background_color: "#000000"
+  long_description: Kudo box is an easy way to foster a positive feedback culture within your teams on Slack. Simply add kudo box to your team's channel and start recognising your team mates for the amazing work they are doing on a daily basis. Unless you add your name to the message no one will know who wrote the deserved praises but the recipient will feel amazing no matter what.
 features:
   bot_user:
     display_name: kudo box
     always_online: true
   slash_commands:
     - command: /kudos
-      url: https://kudo-box-otto.herokuapp.com/write_kudo_card
+      url: https://example.com
       description: Writes a kudo card and put's it in the kudo box
       usage_hint: "[Text for your kudo card]"
       should_escape: false
     - command: /read-kudo
-      url: https://kudo-box-otto.herokuapp.com/read_kudo_card
+      url: https://example.com
       description: Reads a random kudo card
       should_escape: false
 oauth_config:
+  redirect_urls:
+    - https://example.com/oauth_redirect
   scopes:
     bot:
       - channels:join
