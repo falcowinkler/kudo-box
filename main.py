@@ -68,9 +68,8 @@ def read_kudo(request):
 def authorization_error_message(team_domain):
     scopes = "channels:join,chat:write,commands,files:write"
     client_id = os.getenv("SLACK_CLIENT_ID")
-    return f"""Authorization Error. Please visit 
-            https://{team_domain}.slack.com/oauth/v2/authorize?client_id={client_id}&scope={scopes}
-            to authorize."""
+    oauth_link = f"https://{team_domain}.slack.com/oauth/v2/authorize?client_id={client_id}&scope={scopes}"
+    return f'Authorization Error. Please <a href="{oauth_link}">click here</a> to authorize.', 403
 
 
 def derive_password(request):
