@@ -11,15 +11,17 @@ X_ORIGIN_TEXT = 55
 Y_ORIGIN_TEXT = 148
 VERTICAL_LINE_PADDING = 16
 TEXT_HEIGHT = 22
+MAXIMUM_NUMBER_OF_CHARACTERS = 224
 
 
 def create_card(text):
     text = f"""{text}"""
+    message = (text[:MAXIMUM_NUMBER_OF_CHARACTERS] + ' ...') if len(text) > MAXIMUM_NUMBER_OF_CHARACTERS else text
 
     font_path = 'fonts/MostlyMono.ttf'
     image = random.randint(1, NUM_IMAGES)
-    x = Image.open(f'images/{image}.png').convert('RGB')
-    lines = textwrap.wrap(text, width=NUMBER_OF_CHARACTERS_BEFORE_CARRIER_RETURN)
+    x = Image.open(f'images/Group {image}.png').convert('RGB')
+    lines = textwrap.wrap(message, width=NUMBER_OF_CHARACTERS_BEFORE_CARRIER_RETURN)
     font = ImageFont.truetype(font_path, FONT_SIZE, encoding='unic')
     draw = ImageDraw.Draw(x)
     y_offset = Y_ORIGIN_TEXT
