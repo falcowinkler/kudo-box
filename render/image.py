@@ -1,6 +1,10 @@
+import json
 import random
 import textwrap
 import uuid
+import re
+from functools import reduce
+from operator import add
 
 from PIL import Image, ImageFont, ImageDraw
 
@@ -13,9 +17,30 @@ VERTICAL_LINE_PADDING = 16
 TEXT_HEIGHT = 23
 MAXIMUM_NUMBER_OF_CHARACTERS = 224
 
+with open("data/emoji.json", 'r') as emoji_mappings_file:
+    EMOJI_CODES_LOOKUP = {
+        e["short_name"]: e
+        for e in json.load(emoji_mappings_file)
+    }
+
+
+def replace_emojis(text):
+    emoji_regex = ":([a-zA-Z0-9-_+]+):(?::([a-zA-Z0-9-_+]+):)?"
+
+    def replace(match):
+        emoji = match.group(1)
+        if emoji in EMOJI_CODES_LOOKUP:
+            unified = EMOJI_CODES_LOOKUP[emoji]['unified']
+            codes = [int(code, 16) for code in unified.split("-")]
+            return reduce(add, (chr(code) for code in codes))
+        else:
+            return emoji
+
+    return re.sub(emoji_regex, replace, text)
+
 
 def create_card(text):
-    text = f"""{text}"""
+    text = replace_emojis(text)
     message = (text[:MAXIMUM_NUMBER_OF_CHARACTERS] + ' ...') if len(text) > MAXIMUM_NUMBER_OF_CHARACTERS else text
     font_path = 'fonts/NotoEmoji+MostlyMono.ttf'
     image = random.randint(1, NUM_IMAGES)
@@ -30,3 +55,6 @@ def create_card(text):
     filename = f"/tmp/{uuid.uuid4()}.png"
     x.save(filename)
     return filename
+
+
+create_card("asdfsadfee :flag-bi:")

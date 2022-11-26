@@ -98,8 +98,6 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-*.json
-!example-config.json
 # PyBuilder
 .pybuilder/
 target/
