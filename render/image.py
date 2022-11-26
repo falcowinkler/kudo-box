@@ -55,6 +55,3 @@ def create_card(text):
     filename = f"/tmp/{uuid.uuid4()}.png"
     x.save(filename)
     return filename
-
-
-create_card("asdfsadfee :flag-bi:")
