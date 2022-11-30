@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-
-curl -d "@test-read-kudo.json" \
-  -X POST \
-  -H "Content-Type: application/json" \
-  http://localhost:8080
+curl -s -X POST 'http://localhost:8085/v1/projects/nl-kudo-box/topics/read-kudo-queue:publish' \
+    -H 'Content-Type: application/json' \
+    --data '@test-read-kudo.json'

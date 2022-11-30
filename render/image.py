@@ -1,12 +1,10 @@
-import json
 import random
 import textwrap
 import uuid
-import re
-from functools import reduce
-from operator import add
 
 from PIL import Image, ImageFont, ImageDraw
+
+from render.emoji_mapping import replace_emojis
 
 NUM_IMAGES = 11
 NUMBER_OF_CHARACTERS_BEFORE_CARRIER_RETURN = 20
@@ -16,27 +14,6 @@ Y_ORIGIN_TEXT = 130
 VERTICAL_LINE_PADDING = 16
 TEXT_HEIGHT = 23
 MAXIMUM_NUMBER_OF_CHARACTERS = 224
-
-with open("data/emoji.json", 'r') as emoji_mappings_file:
-    EMOJI_CODES_LOOKUP = {
-        e["short_name"]: e
-        for e in json.load(emoji_mappings_file)
-    }
-
-
-def replace_emojis(text):
-    emoji_regex = ":([a-zA-Z0-9-_+]+):(?::([a-zA-Z0-9-_+]+):)?"
-
-    def replace(match):
-        emoji = match.group(1)
-        if emoji in EMOJI_CODES_LOOKUP:
-            unified = EMOJI_CODES_LOOKUP[emoji]['unified']
-            codes = [int(code, 16) for code in unified.split("-")]
-            return reduce(add, (chr(code) for code in codes))
-        else:
-            return emoji
-
-    return re.sub(emoji_regex, replace, text)
 
 
 def create_card(text):

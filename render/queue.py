@@ -28,7 +28,7 @@ def add_to_render_queue(channel_id, kudo, team_id):
     except Exception as e:
         if e.code == HTTPStatus.NOT_FOUND:
             topic_name = 'projects/{project_id}/topics/{topic}'.format(
-                project_id=os.getenv('GOOGLE_CLOUD_PROJECT'),
+                project_id=PROJECT_ID,
                 topic='read-kudo-queue',
             )
             publisher.create_topic(name=topic_name)
