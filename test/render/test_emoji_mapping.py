@@ -1,11 +1,19 @@
-import render.emoji_mapping
+from render.emoji_mapping import *
 
 
-def test_emoji_mapping(mocker):
-    mocker.patch("render.emoji_mapping.load_lookup", return_value={
-        "smiling_face": {"unified": "1F972"},
-        "sad_face": {"unified": "1F932-1F3FF"},
-    })
-    text = "Great work! :smiling_face::sad_face:"
-    result = "Great work! 🥲🤲🏿"
-    assert render.emoji_mapping.replace_emojis(text) == result
+def test_emoji_mapping():
+    text = "Great work! :slightly_smiling_face::flag-it::it:"
+    result = "Great work! 🙂🇮🇹🇮🇹"
+    assert replace_emojis(text) == result
+
+
+def test_skin_tones():
+    text = "Great work! :+1::+1::skin-tone-2::+1::skin-tone-3::+1::skin-tone-4::+1::skin-tone-5::+1::skin-tone-6:"
+    result = "Great work! 👍👍🏻👍🏼👍🏽👍🏾👍🏿"
+    assert replace_emojis(text, parse_skin_tones=True) == result
+
+
+def test_emoji_split():
+    text = "Great work! 🙂🇮🇹🇮🇹"
+    result = ["Great", "work!", "🙂", "🇮🇹", "🇮🇹"]
+    assert split_str_and_emojis(text) == result
