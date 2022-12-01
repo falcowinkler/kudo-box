@@ -43,7 +43,7 @@ def create_card(text):
     text = replace_emojis(text)
     message = (text[:MAXIMUM_NUMBER_OF_CHARACTERS] + ' ...') if len(text) > MAXIMUM_NUMBER_OF_CHARACTERS else text
     # TODO: look into https://github.com/googlefonts/nototools/blob/main/nototools/merge_fonts.py, try to use NotoColor
-    font_path = 'fonts/NotoEmoji+MostlyMono.ttf'
+    font_path = 'fonts/NotoEmoji+IndieFlower.ttf'
     image = random.randint(1, NUM_IMAGES)
     x = Image.open(f'images/Group {image}.png').convert('RGB')
     font = ImageFont.truetype(font_path, FONT_SIZE, encoding='unic')
