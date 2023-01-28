@@ -75,12 +75,12 @@ def test_read_kudo(app, mocker):
     }
     decrypt_mock = mocker.patch('main.kudos_encryption.decrypt')
     decrypt_mock.return_value = "some-kudo-text"
-    mocker.patch('main.kudos_encryption.make_password').return_value = "some-password"
     mocker.patch("main.get_credentials")
     query_mock = mocker.patch('main.get_kudo')
     query_mock.return_value = EncryptedKudo(b"some-kudo-token", "/some/kudo/id")
     add_to_render_queue = mocker.patch('main.add_to_render_queue')
     mocker.patch("main.verify_signature")
+    mocker.patch("os.getenv", return_value="some-password")
 
     # Act
     with app.test_request_context(data=mock_data):
