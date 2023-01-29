@@ -10,7 +10,7 @@ from slack.signature import SignatureVerifier
 
 import encryption.kudos as kudos_encryption
 from persistence.gcloud import persist_kudo, get_kudo, delete_kudo, get_credentials, persist_bot_token, get_all_kudos
-from render.queue import add_to_render_queue, PROJECT_ID, create_read_kudo_topic, add_read_all_command_to_queue, \
+from render.queue import add_to_render_queue, create_read_kudo_topic, add_read_all_command_to_queue, \
     COMMAND_READ_ALL
 from render.render_to_slack import render_and_upload_kudo, post_initial_message
 
@@ -49,10 +49,12 @@ def process_read_kudo_request(event, context):
         for encrypted_kudo in get_all_kudos(team_id, channel_id):
             kudo = decrypt_kudo(encrypted_kudo)
             render_and_upload_kudo(channel_id, kudo.text, credentials, thread_ts)
-    text = message['text']
-    entity_key = message['entity_key']
-    render_and_upload_kudo(channel_id, text, credentials)
-    delete_kudo(entity_key)
+            delete_kudo(kudo.key)
+    else:
+        text = message['text']
+        entity_key = message['entity_key']
+        render_and_upload_kudo(channel_id, text, credentials)
+        delete_kudo(entity_key)
 
 
 @functions_framework.http
