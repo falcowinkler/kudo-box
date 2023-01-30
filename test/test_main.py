@@ -36,7 +36,7 @@ def test_write_kudo_returns_expected_test(app, mocker):
         res = main.write_kudo(flask.request, )
 
     # Assert
-    assert 'Your kudo was submitted.' in res
+    assert res == 'Your kudo got created in the box for #some-channel-name'
 
 
 def test_write_kudo_persists_correct_data(app, mocker):

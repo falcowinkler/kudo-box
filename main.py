@@ -36,7 +36,7 @@ def write_kudo(request):
         team_id,
         request.form['channel_id'],
         encrypted_kudo)
-    return 'Your kudo was submitted.'
+    return 'Your kudo got created in the box for #' + request.form['channel_name']
 
 
 def process_read_kudo_request(event, context):
