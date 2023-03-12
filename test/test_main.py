@@ -1,8 +1,11 @@
+import base64
+import json
+
 import flask
 import pytest
 
 import main
-from persistence.gcloud import EncryptedKudo
+from persistence.gcloud import EncryptedKudo, Credentials
 
 
 @pytest.fixture(scope="module")
@@ -64,6 +67,34 @@ def test_write_kudo_persists_correct_data(app, mocker):
                                     b"some-kudo-token")
 
 
+def test_process_read_kudo_request(mocker):
+    # Arrange
+    mocker.patch("main.delete_kudo")
+    query_mock = mocker.patch('main.get_all_kudos')
+    render_and_upload_kudo = mocker.patch('main.render_and_upload_kudo')
+    post_initial_message = mocker.patch('main.post_initial_message')
+    thread_ts = 123123
+    post_initial_message.return_value = thread_ts
+    query_mock.return_value = [EncryptedKudo(b"some-kudo-token", "/some/kudo/id")]
+    decrypt_mock = mocker.patch('main.kudos_encryption.decrypt')
+    decrypt_mock.return_value = "some-kudo-text"
+    mocker.patch("os.getenv", return_value="some-password")
+    payload = base64.b64encode(json.dumps({
+        "channel_id": "channel-id-123",
+        "team_id": "team-id-123"
+    }).encode("utf-8"))
+    get_credentials = mocker.patch("main.get_credentials")
+    creds = Credentials(bot_token="bot-token")
+    get_credentials.return_value = creds
+
+    # Act
+    main.process_read_kudo_request({"data": payload}, None)
+
+    # Assert
+    post_initial_message.assert_called_with("channel-id-123", creds)
+    render_and_upload_kudo.assert_called_with("channel-id-123", "some-kudo-text", creds, thread_ts)
+
+
 def test_read_kudo(app, mocker):
     # Arrange
     mock_data = {
@@ -73,24 +104,19 @@ def test_read_kudo(app, mocker):
         'team_domain': "some-domain",
         'channel_name': "some-channel-name",
     }
-    decrypt_mock = mocker.patch('main.kudos_encryption.decrypt')
-    decrypt_mock.return_value = "some-kudo-text"
     mocker.patch("main.get_credentials")
-    query_mock = mocker.patch('main.get_kudo')
-    query_mock.return_value = EncryptedKudo(b"some-kudo-token", "/some/kudo/id")
-    add_to_render_queue = mocker.patch('main.add_to_render_queue')
     mocker.patch("main.verify_signature")
-    mocker.patch("os.getenv", return_value="some-password")
+    add_read_all_command_to_queue = mocker.patch('main.add_read_all_command_to_queue')
 
     # Act
     with app.test_request_context(data=mock_data):
         res = main.read_kudo(flask.request)
 
     # Assert
-    assert ("Drawing next kudo...", 200) == res
-    add_to_render_queue.assert_called_with("channel-id-123", main.Kudo("some-kudo-text", "/some/kudo/id"),
-                                           'team-id-123')
-    decrypt_mock.assert_called_with(b"some-kudo-token", "some-password")
+    assert ("Drawing all kudos...", 200) == res
+    add_read_all_command_to_queue.assert_called_with(
+       "team-id-123", "channel-id-123"
+    )
 
 
 def test_read_kudo_returns_error(app, mocker):
@@ -103,13 +129,9 @@ def test_read_kudo_returns_error(app, mocker):
         'channel_name': "some-channel-name",
     }
     mocker.patch("main.get_credentials")
-    query_mock = mocker.patch('main.get_kudo')
-    query_mock.return_value = EncryptedKudo(b"some-kudo-token", "/some/kudo/id")
-    decrypt_mock = mocker.patch('main.kudos_encryption.decrypt')
-    decrypt_mock.return_value = "some-kudo-text"
-    add_to_render_queue = mocker.patch('main.add_to_render_queue')
-    add_to_render_queue.side_effect = Exception('error')
     mocker.patch("main.verify_signature")
+    add_to_render_queue = mocker.patch('main.add_read_all_command_to_queue')
+    add_to_render_queue.side_effect = Exception('error')
 
     # Act
     with app.test_request_context(data=mock_data):
@@ -119,7 +141,7 @@ def test_read_kudo_returns_error(app, mocker):
     assert ("error", 500) == res
 
 
-def test_read_kudo_returns_authorization_error(app, mocker):
+def test_slash_command_hooks_return_authorization_error(app, mocker):
     mock_data = {
         'team_id': "team-id-123",
         'channel_id': "channel-id-123",
@@ -135,9 +157,9 @@ def test_read_kudo_returns_authorization_error(app, mocker):
     scopes = "channels:join,chat:write,commands,files:write"
     expected_link = f"https://some-domain.slack.com/oauth/v2/authorize?client_id=slack-client-id&scope={scopes}"
     with app.test_request_context(data=mock_data):
-        res_read_kudo = main.read_kudo(flask.request)
-        res_write_kudo = main.read_kudo(flask.request)
+        res_open_kudo_box = main.open_kudo_box(flask.request)
+        res_write_kudo = main.write_kudo(flask.request)
     expected_error = ("Authorization Error. "
                       f'Please <a href="{expected_link}">click here</a> to authorize.', 403)
     assert expected_error == res_write_kudo
-    assert expected_error == res_read_kudo
+    assert expected_error == res_open_kudo_box

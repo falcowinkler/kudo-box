@@ -15,7 +15,7 @@ if [ -z ${ENCRYPTION_SECRET+x} ]; then
   exit 1
 fi
 
-gcloud functions deploy read_kudo \
+gcloud functions deploy open_kudo_box \
 --runtime python39 \
 --trigger-http \
 --set-env-vars "SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}" \

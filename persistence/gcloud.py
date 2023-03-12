@@ -1,4 +1,3 @@
-import random
 from collections import namedtuple
 
 from google.cloud import datastore
@@ -31,15 +30,6 @@ def get_all_kudos(team_id, channel_id):
         EncryptedKudo(entity['token'], entity.key.flat_path)
         for entity in entities
     ]
-
-
-def get_kudo(team_id, channel_id):
-    """returns random (text, key) if any kudo exists in the box or None otherwise."""
-    all_kudos = get_all_kudos(team_id, channel_id)
-    if len(all_kudos) > 0:
-        return random.choice(
-            get_all_kudos(team_id, channel_id)
-        )
 
 
 def delete_kudo(kudo_key):

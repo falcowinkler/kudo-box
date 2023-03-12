@@ -9,9 +9,8 @@ import slack
 from slack.signature import SignatureVerifier
 
 import encryption.kudos as kudos_encryption
-from persistence.gcloud import persist_kudo, get_kudo, delete_kudo, get_credentials, persist_bot_token, get_all_kudos
-from render.queue import add_to_render_queue, create_read_kudo_topic, add_read_all_command_to_queue, \
-    COMMAND_READ_ALL
+from persistence.gcloud import persist_kudo, delete_kudo, get_credentials, persist_bot_token, get_all_kudos
+from render.queue import create_read_kudo_topic, add_read_all_command_to_queue
 from render.render_to_slack import render_and_upload_kudo, post_initial_message
 
 Kudo = namedtuple("Kudo", ["text", "key"])
@@ -44,45 +43,34 @@ def process_read_kudo_request(event, context):
     channel_id = message['channel_id']
     team_id = message['team_id']
     credentials = get_credentials(team_id)
-    if message["command"] == COMMAND_READ_ALL:
-        thread_ts = post_initial_message(channel_id, credentials)
-        for encrypted_kudo in get_all_kudos(team_id, channel_id):
-            kudo = decrypt_kudo(encrypted_kudo)
-            render_and_upload_kudo(channel_id, kudo.text, credentials, thread_ts)
-            delete_kudo(kudo.key)
-    else:
-        text = message['text']
-        entity_key = message['entity_key']
-        render_and_upload_kudo(channel_id, text, credentials)
-        delete_kudo(entity_key)
+    thread_ts = post_initial_message(channel_id, credentials)
+    for encrypted_kudo in get_all_kudos(team_id, channel_id):
+        kudo = decrypt_kudo(encrypted_kudo)
+        render_and_upload_kudo(channel_id, kudo.text, credentials, thread_ts)
+        delete_kudo(kudo.key)
 
 
 @functions_framework.http
-def read_kudo(request):
+def open_kudo_box(request):
     verify_signature(request)
     team_id = request.form["team_id"]
     channel_id = request.form["channel_id"]
     if get_credentials(team_id) is None:
         return authorization_error_message(request.form["team_domain"])
-
     try:
-        if "all" in request.form["text"]:
-            add_read_all_command_to_queue(team_id, channel_id)
-            return "Drawing all kudos...", 200
-
-        encrypted_kudo = get_kudo(team_id, channel_id)
-        if encrypted_kudo is None:
-            return "No more kudos", 200
-        kudo = decrypt_kudo(encrypted_kudo)
-
-        add_to_render_queue(channel_id, kudo, team_id)
-        return "Drawing next kudo...", 200
+        add_read_all_command_to_queue(team_id, channel_id)
+        return "Drawing all kudos...", 200
     except Exception as e:
         render_queue_not_found = hasattr(e, "code") and e.code == HTTPStatus.NOT_FOUND
         if render_queue_not_found:
             create_read_kudo_topic()
-            return read_kudo(request)
+            return open_kudo_box(request)
         return str(e), 500
+
+
+@functions_framework.http
+def read_kudo(request):
+    return open_kudo_box(request)
 
 
 def decrypt_kudo(encrypted_kudo):
