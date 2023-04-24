@@ -17,6 +17,7 @@ fi
 
 gcloud functions deploy open_kudo_box \
 --runtime python39 \
+--min-instances 1 \
 --trigger-http \
 --set-env-vars "SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}" \
 --set-env-vars "GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}" \
