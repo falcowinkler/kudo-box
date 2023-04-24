@@ -91,8 +91,30 @@ def test_process_read_kudo_request(mocker):
     main.process_read_kudo_request({"data": payload}, None)
 
     # Assert
-    post_initial_message.assert_called_with("channel-id-123", creds)
+    post_initial_message.assert_called_with("channel-id-123", creds, "Today's kudos in the thread 🧵!")
     render_and_upload_kudo.assert_called_with("channel-id-123", "some-kudo-text", creds, thread_ts)
+
+
+def test_process_read_kudo_request_no_messages_present(mocker):
+    # Arrange
+    query_mock = mocker.patch('main.get_all_kudos')
+    query_mock.return_value = []
+    post_initial_message = mocker.patch('main.post_initial_message')
+    post_initial_message.return_value = 123456
+    get_credentials = mocker.patch("main.get_credentials")
+    creds = Credentials(bot_token="bot-token")
+    get_credentials.return_value = creds
+    payload = base64.b64encode(json.dumps({
+        "channel_id": "channel-id-123",
+        "team_id": "team-id-123"
+    }).encode("utf-8"))
+
+    # Act
+    result = main.process_read_kudo_request({"data": payload}, None)
+
+    # Assert
+    post_initial_message.assert_called_with("channel-id-123", creds,
+                                            "There are no kudos in the kudo-box for this channel.")
 
 
 def test_read_kudo(app, mocker):
@@ -115,7 +137,7 @@ def test_read_kudo(app, mocker):
     # Assert
     assert ("Drawing all kudos...", 200) == res
     add_read_all_command_to_queue.assert_called_with(
-       "team-id-123", "channel-id-123"
+        "team-id-123", "channel-id-123"
     )
 
 

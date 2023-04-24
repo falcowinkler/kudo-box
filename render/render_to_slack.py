@@ -5,13 +5,13 @@ from render.text import random_title, random_comment
 from render.mentions import extract_mentions, readable_mentions
 
 
-def post_initial_message(channel, credentials):
+def post_initial_message(channel, credentials, text):
     slack_client = WebClient(token=credentials.bot_token)
     response = slack_client.api_call(
         'chat.postMessage',
         data={
             'channel': channel,
-            'text': "Today's kudos in the thread 🧵!"
+            'text': text
         }
     )
     return response["ts"]

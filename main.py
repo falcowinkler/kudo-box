@@ -38,12 +38,20 @@ def write_kudo(request):
     return 'Your kudo got created in the box for #' + request.form['channel_name']
 
 
+def get_text(kudos_present):
+    if kudos_present:
+        return "Today's kudos in the thread 🧵!"
+    return "There are no kudos in the kudo-box for this channel."
+
+
 def process_read_kudo_request(event, context):
     message = json.loads(base64.b64decode(event['data']))
     channel_id = message['channel_id']
     team_id = message['team_id']
     credentials = get_credentials(team_id)
-    thread_ts = post_initial_message(channel_id, credentials)
+    kudos = get_all_kudos(team_id, channel_id)
+    kudos_present = len(kudos) > 0
+    thread_ts = post_initial_message(channel_id, credentials, get_text(kudos_present))
     for encrypted_kudo in get_all_kudos(team_id, channel_id):
         kudo = decrypt_kudo(encrypted_kudo)
         render_and_upload_kudo(channel_id, kudo.text, credentials, thread_ts)
