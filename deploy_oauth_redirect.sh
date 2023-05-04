@@ -28,6 +28,7 @@ fi
 echo "SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}"
 
 gcloud functions deploy oauth_redirect \
+--project nl-kudo-box \
 --runtime python39 \
 --trigger-http \
 --set-env-vars "SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}" \

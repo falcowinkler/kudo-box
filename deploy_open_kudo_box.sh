@@ -16,6 +16,7 @@ if [ -z ${ENCRYPTION_SECRET+x} ]; then
 fi
 
 gcloud functions deploy open_kudo_box \
+--project nl-kudo-box \
 --runtime python39 \
 --min-instances 1 \
 --trigger-http \

@@ -7,6 +7,7 @@ if [ -z ${GOOGLE_CLOUD_PROJECT+x} ]; then
 fi
 
 gcloud functions deploy process_read_kudo_request \
+--project nl-kudo-box \
 --runtime python39 \
 --set-env-vars "GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}" \
 --set-env-vars "ENCRYPTION_SECRET=${ENCRYPTION_SECRET}" \
