@@ -1,3 +1,4 @@
+import logging
 from collections import namedtuple
 
 from google.cloud import datastore
@@ -15,6 +16,23 @@ def persist_kudo(team_id, channel_id, encrypted_text):
         "token": encrypted_text
     })
     client.put(entity)
+
+
+def flag_box_as_being_opened(team_id, channel_id, is_being_opened):
+    kudo_key = client.key("Team", team_id, "Channel", channel_id)
+    entity = datastore.Entity(key=kudo_key)
+    entity.update({
+        "is_currently_opened": is_being_opened
+    })
+    client.put(entity)
+
+
+def is_box_being_opened(team_id, channel_id):
+    channel_key = client.key("Team", team_id, "Channel", channel_id)
+    channel = client.get(channel_key)
+    if channel is None:
+        return False
+    return channel["is_currently_opened"]
 
 
 def get_all_kudos(team_id, channel_id):

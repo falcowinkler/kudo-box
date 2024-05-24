@@ -70,6 +70,7 @@ def test_write_kudo_persists_correct_data(app, mocker):
 def test_process_read_kudo_request(mocker):
     # Arrange
     mocker.patch("main.delete_kudo")
+    flag_box_as_being_opened = mocker.patch("main.flag_box_as_being_opened")
     query_mock = mocker.patch('main.get_all_kudos')
     render_and_upload_kudo = mocker.patch('main.render_and_upload_kudo')
     post_initial_message = mocker.patch('main.post_initial_message')
@@ -93,11 +94,13 @@ def test_process_read_kudo_request(mocker):
     # Assert
     post_initial_message.assert_called_with("channel-id-123", creds, "Today's kudos in the thread 🧵!")
     render_and_upload_kudo.assert_called_with("channel-id-123", "some-kudo-text", creds, thread_ts)
+    flag_box_as_being_opened.assert_called_with("team-id-123", "channel-id-123", False)
 
 
 def test_process_read_kudo_request_no_messages_present(mocker):
     # Arrange
     query_mock = mocker.patch('main.get_all_kudos')
+    mocker.patch("main.flag_box_as_being_opened")
     query_mock.return_value = []
     post_initial_message = mocker.patch('main.post_initial_message')
     post_initial_message.return_value = 123456
@@ -126,6 +129,7 @@ def test_read_kudo(app, mocker):
         'team_domain': "some-domain",
         'channel_name': "some-channel-name",
     }
+    mocker.patch("main.is_box_being_opened", return_value=False)
     mocker.patch("main.get_credentials")
     mocker.patch("main.verify_signature")
     add_read_all_command_to_queue = mocker.patch('main.add_read_all_command_to_queue')
@@ -141,6 +145,27 @@ def test_read_kudo(app, mocker):
     )
 
 
+def test_read_kudo_box_is_already_being_opened(app, mocker):
+    # Arrange
+    mock_data = {
+        'team_id': "team-id-123",
+        'channel_id': "channel-id-123",
+        'text': "some-text",
+        'team_domain': "some-domain",
+        'channel_name': "some-channel-name",
+    }
+    mocker.patch("main.is_box_being_opened", return_value=True)
+    mocker.patch("main.get_credentials")
+    mocker.patch("main.verify_signature")
+
+    # Act
+    with app.test_request_context(data=mock_data):
+        res = main.read_kudo(flask.request)
+
+    # Assert
+    assert ("Box is already being opened. Wait until all kudos are read, then try again", 200) == res
+
+
 def test_read_kudo_returns_error(app, mocker):
     # Arrange
     mock_data = {
@@ -150,6 +175,7 @@ def test_read_kudo_returns_error(app, mocker):
         'team_domain': "some-domain",
         'channel_name': "some-channel-name",
     }
+    mocker.patch("main.is_box_being_opened", return_value=False)
     mocker.patch("main.get_credentials")
     mocker.patch("main.verify_signature")
     add_to_render_queue = mocker.patch('main.add_read_all_command_to_queue')
@@ -172,6 +198,7 @@ def test_slash_command_hooks_return_authorization_error(app, mocker):
         'channel_name': "some-channel-name",
     }
     mocker.patch("main.verify_signature")
+    mocker.patch("main.is_box_being_opened", return_value=False)
     get_credentials = mocker.patch("main.get_credentials")
     get_credentials.return_value = None
     getenv = mocker.patch('os.getenv')

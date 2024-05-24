@@ -25,8 +25,6 @@ if [ -z ${ENCRYPTION_SECRET+x} ]; then
   exit 1
 fi
 
-echo "SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}"
-
 gcloud functions deploy oauth_redirect \
 --project nl-kudo-box \
 --runtime python39 \
