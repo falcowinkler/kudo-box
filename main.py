@@ -5,8 +5,8 @@ from collections import namedtuple
 from http import HTTPStatus
 
 import functions_framework
-import slack
-from slack.signature import SignatureVerifier
+import slack_sdk
+from slack_sdk.signature import SignatureVerifier
 
 import encryption.kudos as kudos_encryption
 from persistence.gcloud import persist_kudo, delete_kudo, get_credentials, persist_bot_token, get_all_kudos
@@ -109,7 +109,7 @@ def oauth_redirect(request):
 
 
 def oauth_access(code):
-    client = slack.WebClient()
+    client = slack_sdk.WebClient()
     client_id = os.environ['SLACK_CLIENT_ID']
     client_secret = os.environ['SLACK_CLIENT_SECRET']
     response = client.oauth_v2_access(

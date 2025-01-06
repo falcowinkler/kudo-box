@@ -1,4 +1,4 @@
-from slack import WebClient
+from slack_sdk import WebClient
 
 from render.image import create_card
 from render.text import random_title, random_comment
@@ -25,18 +25,13 @@ def render_and_upload_kudo(channel, text, credentials, thread_ts=None):
         slack_client.conversations_join(channel=channel)
     except:  # already in channel
         pass
-    response = slack_client.api_call("files.upload",
-                                     files={
-                                         "file": file_path
-                                     },
-                                     data={
-                                         "thread_ts": thread_ts,
-                                         'channels': channel,
-                                         'filename': "kudos.png",
-                                         'title': random_title(),
-                                         'initial_comment': random_comment(),
-                                     }
-                                     )
+    response = slack_client.files_upload_v2(
+        channel=channel,
+        file=file_path,
+        thread_ts=thread_ts,
+        filename="kudos.png",
+        initial_comment=random_comment(),
+        title=random_title())
 
     def extract_ts(lst):
         return [info["ts"] for info in lst]
