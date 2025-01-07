@@ -18,12 +18,15 @@ def create_read_kudo_topic():
     publisher.create_topic(name=topic_name)
 
 
-def add_read_all_command_to_queue(team_id, channel_id):
-    payload = {
-        "channel_id": channel_id,
-        "team_id": team_id
-    }
-    add_payload_to_render_queue(payload)
+def add_read_all_command_to_queue(team_id, channel_id, kudos, thread_ts):
+    for kudo in kudos:
+        payload = {
+            "channel_id": channel_id,
+            "team_id": team_id,
+            "kudo_id": kudo.key,
+            "thread_ts": thread_ts
+        }
+        add_payload_to_render_queue(payload)
 
 
 def add_payload_to_render_queue(payload):

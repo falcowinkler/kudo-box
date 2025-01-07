@@ -29,7 +29,7 @@ def render_and_upload_kudo(channel, text, credentials, thread_ts=None):
         channel=channel,
         file=file_path,
         thread_ts=thread_ts,
-        filename="kudos.png",
+        filename="kudos.gif",
         initial_comment=random_comment(),
         title=random_title())
 

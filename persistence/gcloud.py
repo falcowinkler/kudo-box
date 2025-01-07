@@ -17,6 +17,11 @@ def persist_kudo(team_id, channel_id, encrypted_text):
     client.put(entity)
 
 
+def get_kudo(flat_key):
+    entity = client.get(client.key(*flat_key))
+    return EncryptedKudo(entity['token'], entity.key.flat_path)
+
+
 def get_all_kudos(team_id, channel_id):
     kudo_key = client.key(
         "Team",

@@ -9,7 +9,7 @@ import slack_sdk
 from slack_sdk.signature import SignatureVerifier
 
 import encryption.kudos as kudos_encryption
-from persistence.gcloud import persist_kudo, delete_kudo, get_credentials, persist_bot_token, get_all_kudos
+from persistence.gcloud import persist_kudo, delete_kudo, get_credentials, persist_bot_token, get_all_kudos, get_kudo
 from render.queue import create_read_kudo_topic, add_read_all_command_to_queue
 from render.render_to_slack import render_and_upload_kudo, post_initial_message
 
@@ -48,14 +48,13 @@ def process_read_kudo_request(event, context):
     message = json.loads(base64.b64decode(event['data']))
     channel_id = message['channel_id']
     team_id = message['team_id']
+    thread_ts = message['thread_ts']
+    kudo_id = message['kudo_id']
     credentials = get_credentials(team_id)
-    kudos = get_all_kudos(team_id, channel_id)
-    kudos_present = len(kudos) > 0
-    thread_ts = post_initial_message(channel_id, credentials, get_text(kudos_present))
-    for encrypted_kudo in get_all_kudos(team_id, channel_id):
-        kudo = decrypt_kudo(encrypted_kudo)
-        render_and_upload_kudo(channel_id, kudo.text, credentials, thread_ts)
-        delete_kudo(kudo.key)
+    encrypted_kudo = get_kudo(kudo_id)
+    kudo = decrypt_kudo(encrypted_kudo)
+    render_and_upload_kudo(channel_id, kudo.text, credentials, thread_ts)
+    delete_kudo(kudo.key)
 
 
 @functions_framework.http
@@ -63,10 +62,17 @@ def open_kudo_box(request):
     verify_signature(request)
     team_id = request.form["team_id"]
     channel_id = request.form["channel_id"]
-    if get_credentials(team_id) is None:
+    credentials = get_credentials(team_id)
+
+    if credentials is None:
         return authorization_error_message(request.form["team_domain"])
+
+    kudos = get_all_kudos(team_id, channel_id)
+    kudos_present = len(kudos) > 0
+    thread_ts = post_initial_message(channel_id, credentials, get_text(kudos_present))
+
     try:
-        add_read_all_command_to_queue(team_id, channel_id)
+        add_read_all_command_to_queue(team_id, channel_id, kudos, thread_ts)
         return "Drawing all kudos...", 200
     except Exception as e:
         render_queue_not_found = hasattr(e, "code") and e.code == HTTPStatus.NOT_FOUND
