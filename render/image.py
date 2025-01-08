@@ -9,7 +9,7 @@ from PIL import Image, ImageFont, ImageDraw, ImageSequence
 
 from render.emoji_mapping import replace_emojis, split_str_and_emojis
 
-NUM_IMAGES = 1
+NUM_IMAGES = 5
 FONT_SIZE = 28
 X_ORIGIN_TEXT = 55
 Y_ORIGIN_TEXT = 130
